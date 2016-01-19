@@ -57,6 +57,10 @@ class Ybur
     end
 
 
+    def error(msg)
+      $stderr.puts msg
+    end
+
     def print_result
       @ex_results.each do |exr|
         puts "%s [%s] => %s" % [exr.exercise.name, exr.target, exr.state]

@@ -10,7 +10,7 @@ class Ybur
 
     def check()
       Dir.entries(@folder).each do |name|
-        next if name == "." || name == ".."
+        next if name == "." || name == ".." || name == ".git"
         path = File.join(@folder, name)
 
         ex = @suite.get(name)
