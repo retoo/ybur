@@ -24,20 +24,32 @@ class Ybur
 
     class Handler
       attr_reader :interactor
-      def initialize(target)
+      def initialize(runner, target)
         @interactor = Interactor.new(self)
         @stdin, @stdout, @stderr, @wait_thr = Open3.popen3("ruby",
                                                            "-e", "STDOUT.sync=true",
                                                            "-e", "load($0=ARGV.shift)",
                                                            target)
 
+
         @err_printer = Thread.new do
           @stderr.each do |line|
             $stderr.puts "ERR: #{line}"
           end
         end
+
+        @stdout_array = []
+        @stdout_reader = Thread.new do
+          @stdout.each do |line|
+            @stdout_array << line
+          end
+        end
+
         @stdin.sync = true
+        @stdout.sync = true
         @pid = @wait_thr.pid
+        $stderr.puts @pid
+        @runner = runner
         # raise @pid.inspect
       end
 
@@ -58,11 +70,15 @@ class Ybur
       end
 
       def get
-        line = Utils.read_line_timeout(@stdout, 5)
-        if line.is_a? String
-          return line.chomp
-        else
-          return line
+        timeout_at = Time.now + 5
+
+        while true
+          if timeout_at < Time.now
+            return :timeout
+          end
+
+          next_line = @stdout_array.shift
+          return next_line.chomp if next_line
         end
       end
 
@@ -70,7 +86,8 @@ class Ybur
         str = get
 
         unless str.is_a?(String) && str =~ /^\d+$/
-          fail("expected number, got {#str.inspect")
+          @runner.error("expected number, got #{str.inspect}")
+          fail!
         end
         return str.to_i
       end
@@ -84,7 +101,7 @@ class Ybur
     def initialize(ex_result, exercise, target)
       @ex_result = ex_result
       @exercise = exercise
-      @handler = Handler.new(target)
+      @handler = Handler.new(self, target)
       @interactor = @handler.interactor
     end
 

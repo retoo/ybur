@@ -6,53 +6,23 @@ repositories {
     mavenCentral()
 }
 
-
-
 dependencies {
-    compile 'org.jruby:jruby-complete:9.0.4.0'
+    compile 'org.jruby:jruby-complete:1.7.17'
 }
 
 sourceCompatibility = 1.8
 version = '1.0'
 
-shadowjar {
+shadowJar {
     manifest {
         attributes 'Implementation-Title': 'Ybar',
                    'Implementation-Version': version,
                    'Main-Class': 'org.jruby.Main'
     }
 
-    it.dependsOn 'bundleInstall'
-    it.dependsOn 'compileAssets'
-    include {
-        from '.'
-        include 'web.xml'
-        include 'app/**'
-        include '.bundle/**'
-        include 'Gemfile'
-        include 'Gemfile.lock'
-        include 'bin/**'
-        include 'app/**'
-        include 'config/**'
-        include 'gems/**'
-        exclude 'gems/cache/**'
-        exclude 'gems/gems/*/test/**'
-        exclude 'gems/gems/*/guides/**'
-        include 'Rakefile'
-        include 'lib/**'
-        include 'doc/**'
-        include 'tmp/*/.keep'
-        include 'db/**'
-        include 'vendor/plugins/**'
-        include 'vendor/bundler/**'
-        include 'vendor/local/**'
-        include 'vendor/lib/**'
+    from(".") {
+        include "lib/**"
+        include "ex/**"
+        include "*.rb"
     }
-
-    include {
-        from 'vendor'
-        include 'gems/**'
-    }
-
-
 }
