@@ -1,0 +1,58 @@
+plugins {
+    id 'java' // or 'groovy' Must be explicitly applied
+    id 'com.github.johnrengelman.shadow' version '1.2.2'
+}
+repositories {
+    mavenCentral()
+}
+
+
+
+dependencies {
+    compile 'org.jruby:jruby-complete:9.0.4.0'
+}
+
+sourceCompatibility = 1.8
+version = '1.0'
+
+shadowjar {
+    manifest {
+        attributes 'Implementation-Title': 'Ybar',
+                   'Implementation-Version': version,
+                   'Main-Class': 'org.jruby.Main'
+    }
+
+    it.dependsOn 'bundleInstall'
+    it.dependsOn 'compileAssets'
+    include {
+        from '.'
+        include 'web.xml'
+        include 'app/**'
+        include '.bundle/**'
+        include 'Gemfile'
+        include 'Gemfile.lock'
+        include 'bin/**'
+        include 'app/**'
+        include 'config/**'
+        include 'gems/**'
+        exclude 'gems/cache/**'
+        exclude 'gems/gems/*/test/**'
+        exclude 'gems/gems/*/guides/**'
+        include 'Rakefile'
+        include 'lib/**'
+        include 'doc/**'
+        include 'tmp/*/.keep'
+        include 'db/**'
+        include 'vendor/plugins/**'
+        include 'vendor/bundler/**'
+        include 'vendor/local/**'
+        include 'vendor/lib/**'
+    }
+
+    include {
+        from 'vendor'
+        include 'gems/**'
+    }
+
+
+}
